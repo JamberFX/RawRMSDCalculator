@@ -1,0 +1,109 @@
+#This takes all atom type from the pdb file and calculates a mean position for a given residue based on all of the
+#atom types for that residue.
+
+#This is the actual function to be called in your script.  The other functions below are used inside this function.
+```
+def CalcRawRMSDforTwoPDB(file1,file2):
+    arr1=ExtractResPositions(file1)
+    arr2=ExtractResPositions(file2)
+    RMSD=calculateRawRMSD(arr1,arr2)
+    #RMSD=round(RMSD,3)
+    return RMSD
+
+def ExtractResPositions(X):
+    import numpy as np
+    from numpy import array
+    import pandas as pd
+    import numpy as np
+    
+    initialdf=pd.DataFrame()
+    
+    file1 = open(X, 'r')
+    Lines = file1.readlines()
+
+    ResNumlst=[]
+    Xlst=[]
+    Ylst=[]
+    Zlst=[]
+    
+    
+    inlist=[]
+    atomcounter=0
+    for i in range(len(Lines)):
+        linecontent=Lines[i]
+        if linecontent[0:4]=="ATOM":
+            linecontent2=linecontent.replace("-"," -")
+            linecontentsplit=linecontent2.split()
+            ResNumlst.append(linecontentsplit[5])
+            Xlst.append(linecontentsplit[6])
+            Ylst.append(linecontentsplit[7])
+            Zlst.append(linecontentsplit[8])
+        
+    initialdf['ResNum']=ResNumlst
+    initialdf['X']=Xlst
+    initialdf['Y']=Ylst
+    initialdf['Z']=Zlst
+    
+    uniqueRes=initialdf.ResNum.unique()
+
+    
+    xmeanlst=[]
+    ymeanlst=[]
+    zmeanlst=[]
+    
+    for i in range(len(uniqueRes)):
+        xval=0
+        yval=0
+        zval=0
+        xmean=0
+        ymean=0
+        zmean=0
+        counter=0
+        
+        #Subset the initial DF
+        subDF=initialdf[initialdf['ResNum']==uniqueRes[i]]
+        
+        subDF['X'] = subDF['X'].astype(float)
+        subDF['Y'] = subDF['Y'].astype(float)
+        subDF['Z'] = subDF['Z'].astype(float)
+        
+        xmean=(sum(subDF['X']))/len(subDF)
+        ymean=(sum(subDF['Y']))/len(subDF)
+        zmean=(sum(subDF['Z']))/len(subDF)
+        
+        xmeanlst.append(xmean)
+        ymeanlst.append(ymean)
+        zmeanlst.append(zmean)
+        
+    finaldf=pd.DataFrame()
+    
+    finaldf['ResNum']=uniqueRes
+    finaldf['MeanX']=xmeanlst
+    finaldf['MeanY']=ymeanlst
+    finaldf['MeanZ']=zmeanlst
+        
+    finalarr=(finaldf[['MeanX', 'MeanY','MeanZ']].to_numpy())   
+        
+    return finalarr
+```
+#This calculates a raw RMSD value without rotation for each residue in an array.  The two arrays should be of the same 
+#dimensions representing the same number of residues
+```
+def calculateRawRMSD(arr1,arr2):
+    import math as M
+    row=0
+    column=0
+
+    sumofdistances=0
+
+    for i in range(len(arr1)):
+        firstsquared=(arr1[i][0]-arr2[i][0])**2
+        secondsquared=(arr1[i][1]-arr2[i][1])**2
+        thirdsquared=(arr1[i][2]-arr2[i][2])**2
+        sumofdistances=sumofdistances+(M.sqrt(firstsquared+secondsquared+thirdsquared))
+
+    MeanDist=sumofdistances/len(arr1)
+```
+    
+    return MeanDist
+
