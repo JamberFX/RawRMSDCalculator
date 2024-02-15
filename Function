@@ -1,8 +1,9 @@
+"""
 #This takes all atom type from the pdb file and calculates a mean position for a given residue based on all of the
 #atom types for that residue.
 
 #This is the actual function to be called in your script.  The other functions below are used inside this function.
-```
+"""
 def CalcRawRMSDforTwoPDB(file1,file2):
     arr1=ExtractResPositions(file1)
     arr2=ExtractResPositions(file2)
@@ -85,10 +86,10 @@ def ExtractResPositions(X):
     finalarr=(finaldf[['MeanX', 'MeanY','MeanZ']].to_numpy())   
         
     return finalarr
-```
+"""
 #This calculates a raw RMSD value without rotation for each residue in an array.  The two arrays should be of the same 
 #dimensions representing the same number of residues
-```
+"""
 def calculateRawRMSD(arr1,arr2):
     import math as M
     row=0
@@ -103,7 +104,6 @@ def calculateRawRMSD(arr1,arr2):
         sumofdistances=sumofdistances+(M.sqrt(firstsquared+secondsquared+thirdsquared))
 
     MeanDist=sumofdistances/len(arr1)
-```
     
     return MeanDist
 
